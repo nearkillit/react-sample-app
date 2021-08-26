@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
+import { useDispatch,useSelector } from "react-redux";
 // material ui
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@material-ui/core/Typography'; 
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import Table from '@material-ui/core/Table';
@@ -58,10 +59,9 @@ const useStyles = makeStyles( theme => ({
 
 function SimpleCard() {
   const classes = useStyles();    
-
-  const [todo, setTodo] = useState('')
-  const [todos, setTodos] = useState([])
-  const [id, setId] = useState(0)  
+  const dispatch = useDispatch();
+  const state = useSelector(state => state);    
+  const [todo, setTodo] = useState('')  
 
   const inputTodo = (e) => {    
     setTodo(e.target.value) 
@@ -72,25 +72,16 @@ function SimpleCard() {
       alert('todoが記入されていません')
       return
     }
-    const newId = id + 1
-    setId(newId)
-    console.log(todo);
-    setTodos([ ...todos, {
-      id: newId,
-      todo
-    }])
+    dispatch({ type:'ADD_TODO', todo})
   }
 
-  const deleteTodo = (id) => {
-    const newTodos = todos.filter( t => {
-      return t.id !== id
-    })
-    setTodos(newTodos)    
+  const deleteTodo = (id) => {    
+    dispatch({ type:'DELETE_TODO', id})  
   }
 
   useEffect(() => {
     
-  },[todos]) 
+  },[state.todos]) 
 
   return (
     <Card className={classes.root} variant="outlined">
@@ -105,7 +96,7 @@ function SimpleCard() {
             <AddIcon fontSize="large"/>            
           </IconButton>           
         </form>
-        { todos.length !== 0 ? 
+        { state.todos.length !== 0 ? 
         <TableContainer className={classes.tableRoot}>
         <Paper className={classes.paper}>
           <Table className={classes.table} aria-label="a dense table">
@@ -117,7 +108,7 @@ function SimpleCard() {
               </TableRow>
             </TableHead>
             <TableBody>
-            {todos.map((row) => (
+            {state.todos.map((row) => (
               <TableRow key={row.id}>
                 <TableCell component="th" scope="row">
                   {row.id}
