@@ -154,4 +154,4 @@ const mapDispatchToProps = (dispatch) => {
 
 SimpleCard2 = connect(mappingState,mapDispatchToProps)(SimpleCard2)
 
-export default SimpleCard2;
+export default SimpleCard2;   

@@ -13,6 +13,10 @@ const reducer = (state = initialState, action) => {
       return { 
         todos: state.todos.filter( t => t.id !== action.id )
       };
+    case 'EDIT_TODO':
+      return { 
+        todos: state.todos.map( t => t.id === action.id ? action.todo : t )
+      };
     default:
       return state;
   }

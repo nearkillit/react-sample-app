@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { useDispatch,useSelector } from "react-redux";
-import { useParams } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { deleteTodo } from '../actions'
+import { useHistory } from 'react-router-dom'
+
 // material ui
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
@@ -19,6 +21,7 @@ import Paper from '@material-ui/core/Paper';
 // icon
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
+import CreateIcon from '@material-ui/icons/Create';
 
 const useStyles = makeStyles( theme => ({
   root: {       
@@ -58,72 +61,62 @@ const useStyles = makeStyles( theme => ({
   }
 }));
 
-function SimpleCard(props) {
-  const classes = useStyles();    
-  const dispatch = useDispatch();
-  const state = useSelector(state => state);    
-  const [todo, setTodo] = useState('')  
-  const {value} = props.match
+function SimpleCard3(props) {
+  const classes = useStyles();            
+  const history = useHistory();
+  const handleLink = path => history.push(path)  
 
-  const inputTodo = (e) => {    
-    setTodo(e.target.value) 
+  const addTodo = () => {   
+    handleLink('/todoadd')
+  }
+
+  const deleteTodo = (id) => {        
+    props.deleteTodo(id) 
   }  
-
-  const addTodo = () => {
-    console.log(value)
-    if(todo === ''){
-      alert('todoが記入されていません')
-      return
-    }
-    dispatch({ type:'ADD_TODO', todo})
-  }
-
-  const deleteTodo = (id) => {    
-    dispatch({ type:'DELETE_TODO', id})  
-  }
 
   useEffect(() => {
     
-  },[state.todos]) 
+  },[props.todos]) 
 
   return (
-    <Card className={classes.root} variant="outlined">
-      <CardContent>                 
-          <TextField
-            label="Todo"          
-            className={clsx(classes.margin, classes.textField)} 
-            onChange={inputTodo}     
-          />
+    <Card className={classes.root} variant="outlined">        
+        <CardContent>
+        <CardContent>          
           <IconButton aria-label="add" onClick={addTodo}>
-            <AddIcon fontSize="large"/>            
-          </IconButton>                   
-        { state.todos.length !== 0 ? 
+            Make a Ticket<AddIcon fontSize="large"/>            
+          </IconButton>           
+        </CardContent>
+        { props.todos.length !== 0 ? 
         <TableContainer className={classes.tableRoot}>
         <Paper className={classes.paper}>
           <Table className={classes.table} aria-label="a dense table">
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>                
-                <TableCell align="left">Todo</TableCell>
-                <TableCell align="left">Edit/Delete</TableCell>            
+                <TableCell align="left">チケット名</TableCell>                
+                <TableCell align="left">担当者</TableCell>
+                <TableCell align="left">編集/削除</TableCell>            
               </TableRow>
             </TableHead>
             <TableBody>
-            {state.todos.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell component="th" scope="row">
+            {props.todos.map((row, index) => (
+              <TableRow key={index}>
+                <TableCell component="th">
                   {row.id}
                 </TableCell>                
-                <TableCell align="left">
-                <TextField                            
-                  className={clsx(classes.margin, classes.textField)}                   
-                  value={row.todo}     
-                /> 
+                <TableCell component="th">
+                  {row.ticket}
                 </TableCell>
+                <TableCell component="th">
+                  {row.pic}
+                </TableCell> 
                 <TableCell align="left">
+                  <IconButton  aria-label="edit" onClick={() => handleLink('/todoedit/' + row.id)}>  
+                    <CreateIcon />
+                  </IconButton>
                   <IconButton aria-label="delete" onClick={() => deleteTodo(row.id)}>
                     <DeleteIcon/>            
-                  </IconButton>                                
+                  </IconButton>                     
                 </TableCell>                            
               </TableRow>
             ))}
@@ -142,4 +135,14 @@ function SimpleCard(props) {
   );
 }
 
-export default SimpleCard;
+const mappingState = (state) =>{
+    return { todos: state.todo.todos }
+  }
+
+const mapDispatchToProps = (dispatch) => {
+      return {        
+        deleteTodo: (id) => dispatch(deleteTodo(id))
+      };
+    };
+
+export default connect(mappingState,mapDispatchToProps)(SimpleCard3)
